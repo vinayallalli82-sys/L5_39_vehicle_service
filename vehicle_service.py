@@ -1,9 +1,9 @@
 
 """Manage vehicle service records and calculate service costs."""
-
+import os
 import hashlib
 import json
-import subprocess
+import shutil
 from datetime import date
 
 SERVICE_RATES = {
@@ -12,7 +12,7 @@ SERVICE_RATES = {
     "General": 2500,
     "Brake Check": 1200,
 }
-ADMIN_PASSWORD = "garage-demo"
+ADMIN_PASSWORD = os.environ.get("GARAGE_ADMIN_PASSWORD")
 service_records = {}
 
 
@@ -54,8 +54,8 @@ def get_total_cost(vehicle_no):
 
 
 def job_card_id(vehicle_no):
-    """Generate the existing short job card identifier."""
-    return hashlib.md5(vehicle_no.encode()).hexdigest()[:8]
+    """Generate a short SHA-256-based job card identifier."""
+    return hashlib.sha256(vehicle_no.encode()).hexdigest()[:8]
 
 
 def busiest_vehicle():
@@ -80,8 +80,8 @@ def load_records(file_name="services.json"):
 
 
 def backup_records(folder):
-    """Run the original backup helper; security will be fixed separately."""
-    subprocess.call("cp services.json " + folder, shell=True)
+    """Copy the service records file to the specified destination."""
+    shutil.copy2("services.json", folder)
 
 
 def main():
